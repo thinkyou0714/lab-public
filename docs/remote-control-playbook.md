@@ -69,6 +69,10 @@ _THINK YOU LAB / 最終更新: 2026-02-28_
 
 ## 4. Remote Control 有効化チェックリスト
 
+> **注意：Remote Control は Max プラン専用です。Pro プランでは利用不可。**
+> Pro プランの場合はセクション6のフォールバック方針を参照。
+
+- [ ] **Max プランであることを確認**（claude.ai でプラン確認）
 - [ ] PC側の Claude Code を起動した状態で `/config` を実行
 - [ ] 「Enable Remote Control for all sessions」を `true` に設定
 - [ ] iPhoneの Claudeアプリを開く（同アカウントでログイン済みであること）
