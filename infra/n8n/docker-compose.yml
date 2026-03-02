@@ -1,23 +1,19 @@
 services:
   n8n:
-    image: n8nio/n8n:latest
+    image: ${N8N_IMAGE:?set N8N_IMAGE in .env}
     restart: unless-stopped
     ports:
-      - "5678:5678"
+      - "${N8N_PORT:-5678}:5678"
     volumes:
       - n8n_data:/home/node/.n8n
     environment:
-      # Basic Auth (ブラウザアクセス保護)
-      - N8N_BASIC_AUTH_ACTIVE=true
-      - N8N_BASIC_AUTH_USER=admin
-      - N8N_BASIC_AUTH_PASSWORD=changeme   # ← 必ず変更すること
-
-      # TailscaleのIPに差し替える (例: http://100.64.0.1:5678)
-      - WEBHOOK_URL=http://TAILSCALE_IP_HERE:5678
-
-      # タイムゾーン
-      - GENERIC_TIMEZONE=Asia/Tokyo
-      - TZ=Asia/Tokyo
+      # Public-safe compose: secrets and host-specific values live in .env
+      N8N_BASIC_AUTH_ACTIVE: "true"
+      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:?set N8N_BASIC_AUTH_USER in .env}
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD:?set N8N_BASIC_AUTH_PASSWORD in .env}
+      WEBHOOK_URL: ${WEBHOOK_URL:?set WEBHOOK_URL in .env}
+      GENERIC_TIMEZONE: ${GENERIC_TIMEZONE:-Asia/Tokyo}
+      TZ: ${TZ:-Asia/Tokyo}
 
 volumes:
   n8n_data:

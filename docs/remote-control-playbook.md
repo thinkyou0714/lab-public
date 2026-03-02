@@ -1,6 +1,8 @@
 # Remote Control Playbook — iPhone × Claude Code
 
-_THINK YOU LAB / 最終更新: 2026-02-28_
+Source-Exempt: operational-doc
+
+_THINK YOU LAB / 最終更新: 2026-03-07_
 
 ---
 
@@ -69,12 +71,11 @@ _THINK YOU LAB / 最終更新: 2026-02-28_
 
 ## 4. Remote Control 有効化チェックリスト
 
-> **注意：Remote Control は Max プラン専用です。Pro プランでは利用不可。**
-> Pro プランの場合はセクション6のフォールバック方針を参照。
+> **注意：プラン条件や機能提供状況は変わりうるため、利用前に公式案内で最新情報を確認する。**
 
-- [ ] **Max プランであることを確認**（claude.ai でプラン確認）
+- [ ] 現在のプランと利用条件を確認
 - [ ] PC側の Claude Code を起動した状態で `/config` を実行
-- [ ] 「Enable Remote Control for all sessions」を `true` に設定
+- [ ] 「Enable Remote Control for all sessions」を有効化
 - [ ] iPhoneの Claudeアプリを開く（同アカウントでログイン済みであること）
 - [ ] アプリ内の Remote Control メニューからセッションが見えることを確認
 - [ ] テスト用に簡単なメッセージを送り、PC側で受信されることを確認

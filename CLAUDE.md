@@ -1,6 +1,8 @@
 # CLAUDE.md — LAB_PUBLIC
 
-_リポジトリ固有の運用指示 / 最終更新: 2026-02-28_
+Source-Exempt: operational-doc
+
+_リポジトリ固有の運用指示 / 最終更新: 2026-03-07_
 
 ---
 
@@ -34,16 +36,18 @@ jj git remote list
 
 ## 参照パス
 
-- 運用原則: `C:/Users/Rikuto/CLAUDE.md`
-- Plugin ポリシー: `C:/docs/governance/PLUGIN_POLICY.md`
+- 運用原則: `README.md`
+- 公開チェック: `LOG_POLICY.md`
 - Playbook: `docs/remote-control-playbook.md`
+- n8n セットアップ: `infra/n8n/README.md`
 
 ---
 
 ## 制約
 
-1. **出典URLが必ずある** — URLなき知見はここに置かない
-2. **機微な文脈ゼロ** — 個人情報・顧客情報・推測を含まない
-3. **LAB_PUBLIC = 公開可能** — 業務・私用ファイルと混在させない
-4. **ファイル作成・編集のみ** — git push / jj push 等は確認を取ってから実行
-5. **外部送信データは公開情報のみ** — LOG_POLICY.md のチェックリストを守る
+1. **知見メモには出典URLが必ずある** — URLなきまま公開ログを置かない
+2. **運用ドキュメントは exempt を明示** — `Source-Exempt: operational-doc`
+3. **機微な文脈ゼロ** — 個人情報・顧客情報・推測を含まない
+4. **LAB_PUBLIC = 公開可能** — 業務・私用ファイルと混在させない
+5. **ファイル作成・編集のみ** — git push / jj push 等は確認を取ってから実行
+6. **外部送信データは公開情報のみ** — `LOG_POLICY.md` のチェックリストを守る
