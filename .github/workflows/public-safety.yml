@@ -1,0 +1,17 @@
+name: public-safety
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  check:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Public safety check
+        shell: pwsh
+        run: pwsh -File scripts/check-public-safety.ps1
