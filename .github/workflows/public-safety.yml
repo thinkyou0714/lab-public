@@ -15,3 +15,9 @@ jobs:
       - name: Public safety check
         shell: pwsh
         run: pwsh -File scripts/check-public-safety.ps1
+      - name: Compose config check
+        shell: pwsh
+        run: |
+          Copy-Item infra/n8n/.env.example infra/n8n/.env
+          Set-Location infra/n8n
+          docker compose -f docker-compose.yml config
