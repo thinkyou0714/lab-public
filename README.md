@@ -2,7 +2,7 @@
 
 Source-Exempt: operational-doc
 
-_THINK YOU LAB / 最終更新: 2026-03-07_
+_THINK YOU LAB / 最終更新: 2026-03-13_
 
 ---
 
@@ -27,6 +27,10 @@ _THINK YOU LAB / 最終更新: 2026-03-07_
 - Plugin使用: あり（Plugin名） / なし
 - 外部送信データ: 公開URLのテキストのみ / 送信なし
 ```
+
+## テンプレート
+
+- 新しい知見メモの雛形: `templates/public-note.md`
 
 ## 外部共有ルール
 
