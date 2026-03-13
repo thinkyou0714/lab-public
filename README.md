@@ -31,6 +31,7 @@ _THINK YOU LAB / 最終更新: 2026-03-13_
 ## テンプレート
 
 - 新しい知見メモの雛形: `templates/public-note.md`
+- 新しい運用ドキュメントの雛形: `templates/operational-doc.md`
 
 ## 外部共有ルール
 
