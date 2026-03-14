@@ -2,7 +2,7 @@
 
 Source-Exempt: operational-doc
 
-_THINK YOU LAB / 最終更新: 2026-03-13_
+_THINK YOU LAB / 最終更新: 2026-03-14_
 
 ---
 
@@ -32,6 +32,7 @@ _THINK YOU LAB / 最終更新: 2026-03-13_
 
 - 新しい知見メモの雛形: `templates/public-note.md`
 - 新しい運用ドキュメントの雛形: `templates/operational-doc.md`
+- 雛形から新規ファイルを作る: `pwsh -File scripts/new-from-template.ps1 -Template public-note -OutputPath notes/2026-03-14-example.md`
 
 ## 外部共有ルール
 
