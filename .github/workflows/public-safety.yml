@@ -15,6 +15,14 @@ jobs:
       - name: Public safety check
         shell: pwsh
         run: pwsh -File scripts/check-public-safety.ps1
+      - name: Template helper smoke test
+        shell: pwsh
+        run: |
+          pwsh -File scripts/new-from-template.ps1 -Template public-note -OutputPath temp/generated-note.md
+          pwsh -File scripts/new-from-template.ps1 -Template operational-doc -OutputPath temp/generated-ops.md
+          Remove-Item temp/generated-note.md -Force
+          Remove-Item temp/generated-ops.md -Force
+          Remove-Item temp -Force
       - name: Compose config check
         shell: pwsh
         run: |
