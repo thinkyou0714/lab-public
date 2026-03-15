@@ -12,21 +12,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Public safety check
+      - name: Repository validation
         shell: pwsh
-        run: pwsh -File scripts/check-public-safety.ps1
-      - name: Template helper smoke test
-        shell: pwsh
-        run: |
-          pwsh -File scripts/new-from-template.ps1 -Template public-note -OutputPath temp/generated-note.md
-          pwsh -File scripts/new-from-template.ps1 -Template operational-doc -OutputPath temp/generated-ops.md
-          Remove-Item temp/generated-note.md -Force
-          Remove-Item temp/generated-ops.md -Force
-          Remove-Item temp -Force
-      - name: Compose config check
-        shell: pwsh
-        run: |
-          Copy-Item infra/n8n/.env.example infra/n8n/.env
-          Set-Location infra/n8n
-          docker compose -f docker-compose.yml config
-          Remove-Item .env -Force
+        run: pwsh -File scripts/validate-all.ps1

@@ -22,9 +22,8 @@ _Last updated: 2026-03-15_
 
 ## Local Checks
 
-- `pwsh -File scripts/check-public-safety.ps1`
-- `pwsh -File scripts/new-from-template.ps1 -Template public-note -OutputPath temp/example.md`
-- 検証後は生成した一時ファイルを削除する
+- 統合チェック: `pwsh -File scripts/validate-all.ps1`
+- 個別チェック: `pwsh -File scripts/check-public-safety.ps1`
 
 ## jj Flow
 
