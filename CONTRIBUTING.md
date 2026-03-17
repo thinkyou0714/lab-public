@@ -2,7 +2,7 @@
 
 Source-Exempt: operational-doc
 
-_Last updated: 2026-03-15_
+_Last updated: 2026-03-17_
 
 ## Purpose
 
@@ -24,6 +24,11 @@ _Last updated: 2026-03-15_
 
 - 統合チェック: `pwsh -File scripts/validate-all.ps1`
 - 個別チェック: `pwsh -File scripts/check-public-safety.ps1`
+
+## Codex Skill
+
+- repo 内 skill: `skills/lab-public-maintainer`
+- skill を使うときの初期プロンプト: `Use $lab-public-maintainer to maintain the LAB_PUBLIC repository safely with its public-check and jj workflow.`
 
 ## jj Flow
 

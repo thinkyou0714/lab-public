@@ -1,0 +1,4 @@
+interface:
+  display_name: "LAB Public Maintainer"
+  short_description: "Maintain LAB_PUBLIC safely with jj"
+  default_prompt: "Use $lab-public-maintainer to maintain the LAB_PUBLIC repository safely with its public-check and jj workflow."
