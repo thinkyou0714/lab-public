@@ -1,0 +1,181 @@
+name: Private Repo Actions Monitor
+
+# Why this lives in lab-public (public repo, unlimited free Actions):
+#   When the account hits its private-repo Actions spending limit, ALL private
+#   repos go `startup_failure` simultaneously (vault/think-you-lab/n8n/etc).
+#   That blackout went undetected for 3+ days (2026-05-25 → 2026-05-28) the
+#   first time it happened, because `startup_failure` doesn't reliably trigger
+#   the usual "❌ workflow failed" email. This monitor watches for that
+#   signature and opens a tracking Issue here — so the next blackout is
+#   detected in hours, not days.
+#
+#   This workflow runs ONLY on schedule and workflow_dispatch — never on
+#   pull_request — so untrusted PR code can never read MONITOR_PAT.
+
+on:
+  schedule:
+    - cron: '0 21 * * *'   # daily ~06:00 JST (right after the vault-audit's own scheduled slot)
+  workflow_dispatch:
+
+permissions:
+  issues: write             # to open / update the alert Issue in this repo
+  contents: read
+
+concurrency:
+  group: private-actions-monitor
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Scan private repos for Actions blackout
+        uses: actions/github-script@v7
+        env:
+          # Fine-grained PAT with Actions: Read on the monitored private repos.
+          # Setup (one-time, human task):
+          #   1. github.com → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token
+          #   2. Resource owner: thinkyou0714; Repository access: Select repositories → the 8 below
+          #   3. Repository permissions: Actions = Read-only
+          #   4. Copy the token, then in this repo: Settings → Secrets and variables → Actions → New repository secret
+          #      Name: MONITOR_PAT
+          #      Value: <token>
+          # If MONITOR_PAT is missing, the monitor degrades gracefully and reports the unmet prerequisite.
+          MONITOR_PAT: ${{ secrets.MONITOR_PAT }}
+        with:
+          script: |
+            const REPOS = [
+              'thinkyou0714/obsidian-vault',
+              'thinkyou0714/think-you-lab',
+              'thinkyou0714/n8n',
+              'thinkyou0714/nextjs-boilerplate',
+              'thinkyou0714/codex-toolkit',
+              'thinkyou0714/lab-inbox-bot',
+              'thinkyou0714/zenn-content',
+              'thinkyou0714/private-members',
+            ];
+            const N = 5;                       // examine last N runs per repo
+            const ALERT_LABEL = 'ci-blackout';
+
+            const pat = process.env.MONITOR_PAT;
+            const hasPat = pat && pat.length > 0;
+            const octokit = hasPat
+              ? new (require('@octokit/rest').Octokit)({ auth: pat })
+              : github;
+
+            const results = [];
+            for (const slug of REPOS) {
+              const [owner, repo] = slug.split('/');
+              try {
+                const res = await octokit.request(
+                  'GET /repos/{owner}/{repo}/actions/runs',
+                  { owner, repo, per_page: N }
+                );
+                const runs = res.data.workflow_runs || [];
+                const statuses = runs.map(r => r.conclusion);
+                const allStartupFail = runs.length >= N
+                  && statuses.every(c => c === 'startup_failure');
+                const lastSuccess = runs.find(r => r.conclusion === 'success');
+                results.push({
+                  slug,
+                  count: runs.length,
+                  statuses,
+                  allStartupFail,
+                  lastSuccessAt: lastSuccess ? lastSuccess.created_at : null,
+                });
+              } catch (e) {
+                results.push({ slug, error: e.status + ' ' + (e.message || '') });
+              }
+            }
+
+            const affected = results.filter(r => r.allStartupFail);
+            const errored = results.filter(r => r.error);
+            const healthy = results.filter(r => !r.allStartupFail && !r.error);
+
+            console.log('Monitor results:');
+            for (const r of results) {
+              if (r.error)            console.log(`  [ERR]    ${r.slug} -> ${r.error}`);
+              else if (r.allStartupFail) console.log(`  [BLACK]  ${r.slug} -> ${r.statuses.join(',')}, last_success=${r.lastSuccessAt || 'none'}`);
+              else                    console.log(`  [OK]     ${r.slug} -> ${r.statuses.join(',')}`);
+            }
+
+            if (!hasPat) {
+              core.warning('MONITOR_PAT secret is not set; the monitor cannot read private repos. See workflow file comments for setup steps.');
+            }
+
+            if (affected.length === 0) {
+              console.log('No blackout detected.');
+              return;
+            }
+
+            // Build alert body
+            const rows = affected.map(r =>
+              `| \`${r.slug}\` | ${r.statuses.join(', ')} | ${r.lastSuccessAt || '_none in last ' + N + '_'} |`
+            ).join('\n');
+            const erroredNote = errored.length
+              ? `\n\n_Could not check_: ${errored.map(r => '`'+r.slug+'`').join(', ')} (PAT scope insufficient or rate limited)._`
+              : '';
+            const body = [
+              `## 🚨 Cross-repo Actions blackout detected`,
+              ``,
+              `**${affected.length} private repo(s)** show all last-${N} runs as \`startup_failure\` — the signature of **account-level Actions spending limit exhaustion**.`,
+              ``,
+              `| Repo | Last ${N} statuses | Last successful run |`,
+              `|---|---|---|`,
+              rows,
+              erroredNote,
+              ``,
+              `### Most likely root cause`,
+              `GitHub Actions spending limit / private-repo minute quota is exhausted. Public repos on this account run normally; only private repos are blocked. Detailed diagnosis (with evidence table): **thinkyou0714/obsidian-vault#124**.`,
+              ``,
+              `### Remediation (5 min, human task)`,
+              `1. Visit https://github.com/settings/billing/spending_limit`,
+              `2. Raise the Actions spending limit OR confirm payment method`,
+              `3. Verify: \`gh run rerun <id> --repo thinkyou0714/obsidian-vault\` → expect non-zero duration`,
+              ``,
+              `_This Issue was auto-opened by \`.github/workflows/private-actions-monitor.yml\` in this repo (\`lab-public\`). It will be updated on subsequent detections; close manually after billing is resolved._`,
+            ].join('\n');
+
+            // Dedup: search for existing open Issue with the label
+            const open = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: ALERT_LABEL,
+              per_page: 5,
+            });
+
+            // Ensure the label exists (idempotent create)
+            try {
+              await github.rest.issues.createLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: ALERT_LABEL,
+                color: 'd73a4a',
+                description: 'Auto-opened by private-actions-monitor: cross-repo Actions blackout',
+              });
+            } catch (e) {
+              if (e.status !== 422) throw e; // 422 = already exists
+            }
+
+            if (open.data.length > 0) {
+              const issue = open.data[0];
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `### Re-check at ${new Date().toISOString()}\n\n${body}`,
+              });
+              console.log(`Updated existing alert Issue #${issue.number}`);
+              core.summary.addHeading(`Updated alert Issue #${issue.number}`).write();
+            } else {
+              const created = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `🚨 Actions blackout: ${affected.length} private repo(s) show all-startup_failure (likely spending-limit exhaustion)`,
+                body,
+                labels: [ALERT_LABEL],
+              });
+              console.log(`Opened alert Issue #${created.data.number}: ${created.data.html_url}`);
+              core.summary.addHeading(`Opened alert Issue #${created.data.number}`).addLink('View issue', created.data.html_url).write();
+            }
