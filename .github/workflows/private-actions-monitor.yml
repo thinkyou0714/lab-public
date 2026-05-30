@@ -44,14 +44,19 @@ jobs:
           MONITOR_PAT: ${{ secrets.MONITOR_PAT }}
         with:
           script: |
+            // Private repos with at least one workflow file. Public repos
+            // have unlimited free Actions and can't be impacted by the
+            // spending limit, so they're intentionally excluded — see
+            // `.github/monitor-config.json` (read at runtime once that PR
+            // lands) for the rationale per excluded repo. Keep this list
+            // and the one in `actions-cost-audit.yml` in sync until the
+            // shared config refactor merges.
             const REPOS = [
               'thinkyou0714/obsidian-vault',
               'thinkyou0714/think-you-lab',
               'thinkyou0714/n8n',
               'thinkyou0714/nextjs-boilerplate',
-              'thinkyou0714/codex-toolkit',
               'thinkyou0714/lab-inbox-bot',
-              'thinkyou0714/zenn-content',
               'thinkyou0714/private-members',
             ];
             const N = 5;                       // examine last N runs per repo
