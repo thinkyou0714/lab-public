@@ -46,14 +46,19 @@ jobs:
           MONITOR_PAT: ${{ secrets.MONITOR_PAT }}
         with:
           script: |
+            // Private repos with at least one workflow file. Public repos
+            // (codex-toolkit, zenn-content) have unlimited free Actions
+            // and contribute zero to monthly minute consumption, so they
+            // would always show ~0 sec and only add noise to the
+            // ranking. claude-lab-config is private but has 0 workflows.
+            // Keep this list and the one in `private-actions-monitor.yml`
+            // in sync. See `docs/actions-cost-runbook.md` for guidance.
             const REPOS = [
               'thinkyou0714/obsidian-vault',
               'thinkyou0714/think-you-lab',
               'thinkyou0714/n8n',
               'thinkyou0714/nextjs-boilerplate',
-              'thinkyou0714/codex-toolkit',
               'thinkyou0714/lab-inbox-bot',
-              'thinkyou0714/zenn-content',
               'thinkyou0714/private-members',
             ];
             const WINDOW_DAYS = 30;

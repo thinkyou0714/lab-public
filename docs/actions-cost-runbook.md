@@ -116,7 +116,23 @@ The thresholds (3000 sec total, 120 sec avg + 10 runs) live in [`actions-cost-au
 
 ## Maintaining the REPOS list
 
-The hardcoded `REPOS` array in [`actions-cost-audit.yml`](../.github/workflows/actions-cost-audit.yml) must match the one in [`private-actions-monitor.yml`](../.github/workflows/private-actions-monitor.yml). If you add or remove a private repo, update **both** files in the same PR. A future v2 could externalize this to a single `monitor-config.yml` consumed by both — not done yet because there are only two consumers and the duplication is visible.
+The hardcoded `REPOS` arrays in [`actions-cost-audit.yml`](../.github/workflows/actions-cost-audit.yml) and [`private-actions-monitor.yml`](../.github/workflows/private-actions-monitor.yml) must match each other. The **single source of truth for which repos are in scope** is [`.github/monitor-config.json`](../.github/monitor-config.json) — when adding or removing a repo:
+
+1. Edit `.github/monitor-config.json` first (this documents *which* repos are in scope and **why** any are excluded — see the `$repos_excluded` block)
+2. Update the `REPOS` arrays in both workflows to match
+3. Commit all three changes in the same PR
+
+### Why some repos are excluded
+
+The `$repos_excluded` block in [`.github/monitor-config.json`](../.github/monitor-config.json) lists every account-owned repo NOT in the monitored set with the reason:
+
+- **Public repos** (e.g. `codex-toolkit`, `zenn-content`) have unlimited free Actions and can't be impacted by the spending limit — monitoring them is noise
+- **Private repos with zero workflows** (e.g. `claude-lab-config` at time of writing) would 404 on the Actions API
+- **Archived repos** don't run workflows
+
+Recheck the excluded list periodically — a private repo gaining its first workflow needs to be added; a previously-monitored repo going public should be removed.
+
+A future v3 could make both workflows `require()` the JSON config at runtime (via a checkout step) so the `REPOS` array literally lives in one place. Not done yet because the duplication is visible and infrequently edited.
 
 ## Limits of the audit
 
