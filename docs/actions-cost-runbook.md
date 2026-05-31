@@ -137,8 +137,39 @@ A future v3 could make both workflows `require()` the JSON config at runtime (vi
 ## Limits of the audit
 
 - **Pagination cap.** The audit reads up to 1000 runs per repo per 30 days (10 pages × 100). Repos pushing more than 1000 runs/month (none currently — think-you-lab tops out at ~1000) will have their tail truncated. The report will still flag the heavy workflows correctly.
-- **No real billing API.** The audit uses `(updated_at - run_started_at)` as a proxy for billable minutes. This includes a small amount of queueing time (usually <5 sec) and excludes per-job minute rounding. For exact billable minutes, see the GitHub Settings → Billing → Plans and usage page.
+- **Wall-clock proxy ≠ actual billable minutes.** This is a real ~3× undercount — read the next section.
 - **`startup_failure` runs excluded.** These are tracked by [`private-actions-monitor.yml`](../.github/workflows/private-actions-monitor.yml), not here. A spike in `startup_failure` indicates a budget incident, not a cost problem.
+
+### Why the audit numbers will look lower than your GitHub bill
+
+The audit uses `(updated_at - run_started_at)` — the wall-clock duration of each *run*. GitHub bills you for each *job* inside a run, with two important differences:
+
+1. **Per-job billing, not per-run.** A workflow with 4 jobs running in parallel for 30 sec each shows `run_duration = 30 sec` in this audit, but GitHub bills `4 × 30 sec = 120 sec`. Matrix jobs multiply further.
+2. **Minute-up rounding.** GitHub rounds every job up to the next minute. A 5-second secrets-scan job is billed as 1 minute = 12× its wall-clock duration.
+
+**Empirically observed on this account (2026-05-30):** the audit's 30-day estimate was ~455 wall-clock minutes = ~$3.64. The actual GitHub-billed amount over the same period was **$11.87** — a **~3.3× factor** dominated by the two effects above.
+
+**How to use the audit anyway:**
+- **Rankings are reliable.** Whichever workflow shows the most wall-clock minutes is the same workflow showing the most billable minutes (the conversion factor is fairly stable per workflow shape).
+- **Absolute thresholds need ~3× headroom.** The `HEAVY_TOTAL_SEC=3000` threshold corresponds to ~$0.40/mo wall-clock but realistically ~$1.30/mo billable. Tune `HEAVY_TOTAL_SEC` if your bill diverges significantly from the audit's estimate.
+- **Cross-check against the GitHub billing UI.** Settings → Billing and licensing → Usage gives the authoritative number per product per workflow per month. The audit is a leading indicator; the UI is ground truth.
+
+A future v3 could call `/repos/{owner}/{repo}/actions/runs/{run_id}/jobs` per run to sum per-job minutes with the minute-up rounding, giving accurate billable estimates. Not done yet because (a) it's ~6× more API calls per audit and (b) the GitHub billing UI is already the authoritative source — the audit is for *which workflow*, not *how much*.
+
+## Spending-limit configuration (the actual blackout trigger)
+
+The 2026-05-25 → 2026-05-28 blackout was not caused by absolute usage being unreasonable — it was caused by the **spending limit being lower than the natural burn** combined with **Stop usage = Yes** as a hard cap.
+
+At Settings → Billing and licensing → Budgets and alerts, each budget has a **Stop usage when budget is exceeded** toggle:
+
+| Stop usage | Outcome when budget is hit |
+|---|---|
+| **Yes (default)** | All Actions in scope go `startup_failure` for the rest of the billing cycle. Causes blackouts. |
+| **No** | Usage continues; you're billed for overage. Alerts still fire at the configured thresholds. |
+
+**Recommendation for this account:** budget = $20–$30/month, **Stop usage = No**, alerts at 50% / 75% / 90%. This combination makes a blackout impossible while keeping cost visibility (overage will be modest — even doubling the measured ~$12/month is $24, which is operationally trivial). Reserve `Stop usage = Yes` for situations where uncapped overage would be a real financial risk (CI systems serving customers, public-facing infrastructure).
+
+The audit + monitor in this repo work either way — the monitor catches blackouts when they happen, the audit catches the burners that cause them. Toggling Stop usage to No removes the failure mode entirely; the audit then becomes an early-warning system for "your bill is growing" rather than "you're about to be blacked out."
 
 ## Related
 
