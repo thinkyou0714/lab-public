@@ -53,6 +53,11 @@ jobs:
             // ranking. claude-lab-config is private but has 0 workflows.
             // Keep this list and the one in `private-actions-monitor.yml`
             // in sync. See `docs/actions-cost-runbook.md` for guidance.
+            // Added 2026-05-31: tyl-monorepo, lab-n8n-workflows, lab-infra
+            // appeared on the account since the initial audit. lab-infra
+            // alone has ~10.4k total runs across 33 workflows — likely
+            // the single largest Actions consumer on the account, was
+            // unaudited before this addition. See monitor-config.json.
             const REPOS = [
               'thinkyou0714/obsidian-vault',
               'thinkyou0714/think-you-lab',
@@ -60,6 +65,9 @@ jobs:
               'thinkyou0714/nextjs-boilerplate',
               'thinkyou0714/lab-inbox-bot',
               'thinkyou0714/private-members',
+              'thinkyou0714/tyl-monorepo',
+              'thinkyou0714/lab-n8n-workflows',
+              'thinkyou0714/lab-infra',
             ];
             const WINDOW_DAYS = 30;
             const ALERT_LABEL = 'actions-cost-report';
