@@ -51,6 +51,11 @@ jobs:
             // lands) for the rationale per excluded repo. Keep this list
             // and the one in `actions-cost-audit.yml` in sync until the
             // shared config refactor merges.
+            //
+            // Added 2026-05-31 (post-initial-PR): tyl-monorepo (23 wf),
+            // lab-n8n-workflows (19 wf), lab-infra (33 wf, 10k+ runs —
+            // currently the largest single Actions consumer on the
+            // account, was completely unmonitored before this addition).
             const REPOS = [
               'thinkyou0714/obsidian-vault',
               'thinkyou0714/think-you-lab',
@@ -58,6 +63,9 @@ jobs:
               'thinkyou0714/nextjs-boilerplate',
               'thinkyou0714/lab-inbox-bot',
               'thinkyou0714/private-members',
+              'thinkyou0714/tyl-monorepo',
+              'thinkyou0714/lab-n8n-workflows',
+              'thinkyou0714/lab-infra',
             ];
             const N = 5;                       // examine last N runs per repo
             const ALERT_LABEL = 'ci-blackout';
