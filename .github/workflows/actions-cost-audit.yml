@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Aggregate per-workflow compute consumption
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         env:
           # Reuses MONITOR_PAT (the same fine-grained PAT that
           # `private-actions-monitor.yml` already uses). No new secret needed.

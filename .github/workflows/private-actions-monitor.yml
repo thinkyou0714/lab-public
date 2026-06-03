@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Scan private repos for Actions blackout
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         env:
           # Fine-grained PAT with Actions: Read on the monitored private repos.
           # Setup (one-time, human task):
