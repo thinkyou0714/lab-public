@@ -1,5 +1,7 @@
 # GitHub Actions cost runbook
 
+Source-Exempt: operational-doc
+
 How to use the weekly cost audit report and what to do when it flags a heavy workflow.
 
 The audit is run by [`.github/workflows/actions-cost-audit.yml`](../.github/workflows/actions-cost-audit.yml), a sibling to [`private-actions-monitor.yml`](../.github/workflows/private-actions-monitor.yml). It runs every Sunday ~21:00 UTC and posts a tracking Issue with label `actions-cost-report`.
