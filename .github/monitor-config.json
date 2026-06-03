@@ -1,0 +1,32 @@
+{
+  "$comment": "Single source of truth for repos monitored by both `.github/workflows/private-actions-monitor.yml` (blackout detector) and `.github/workflows/actions-cost-audit.yml` (cost auditor). Edit here first when adding/removing a repo; both workflows hardcode the list literally for now (future v3 may `require()` this at runtime). See `docs/actions-cost-runbook.md` for maintenance guidance.",
+  "$last_reconciled": "2026-05-31",
+  "repos": [
+    "thinkyou0714/obsidian-vault",
+    "thinkyou0714/think-you-lab",
+    "thinkyou0714/n8n",
+    "thinkyou0714/nextjs-boilerplate",
+    "thinkyou0714/lab-inbox-bot",
+    "thinkyou0714/private-members",
+    "thinkyou0714/tyl-monorepo",
+    "thinkyou0714/lab-n8n-workflows",
+    "thinkyou0714/lab-infra"
+  ],
+  "$repos_excluded": {
+    "$comment": "Repos intentionally NOT in the list. Recheck periodically. A repo gaining its first workflow (private) or going public should move between lists.",
+    "thinkyou0714/codex-toolkit": "public repo — Actions are unlimited free; can't be impacted by spending limit",
+    "thinkyou0714/zenn-content": "public repo — same",
+    "thinkyou0714/denken-os": "public repo — same (added to inventory 2026-05-31)",
+    "thinkyou0714/ccmux": "public repo — same",
+    "thinkyou0714/github-flow-kit": "public repo — same",
+    "thinkyou0714/lab-public": "public repo — same (this repo)",
+    "thinkyou0714/public-docs": "public repo — same",
+    "thinkyou0714/.github": "public repo — account profile, no monitoring needed",
+    "thinkyou0714/thinkyou0714": "public repo — profile README, no monitoring needed",
+    "thinkyou0714/claude-lab-config": "private but has 0 workflows — querying would 404 noisily; recheck if workflows are added",
+    "thinkyou0714/lab-os": "archived",
+    "thinkyou0714/n8n-gmail-vault": "archived",
+    "thinkyou0714/obsidian-knowledge-ops": "archived",
+    "thinkyou0714/skills-registry": "archived"
+  }
+}
