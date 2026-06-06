@@ -18,16 +18,18 @@ on:
   workflow_dispatch:
 
 permissions:
-  issues: write             # to open / update the alert Issue in this repo
   contents: read
 
 concurrency:
-  group: private-actions-monitor
-  cancel-in-progress: false
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   monitor:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write          # to open / update the alert Issue in this repo
     steps:
       - name: Scan private repos for Actions blackout
         uses: actions/github-script@v7
