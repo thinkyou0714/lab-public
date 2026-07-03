@@ -50,3 +50,11 @@ _THINK YOU LAB / 最終更新: 2026-03-15_
 - 環境変数テンプレート: `infra/n8n/.env.example`
 - セットアップと復旧手順: `infra/n8n/README.md`
 - 公開前チェック: `scripts/check-public-safety.ps1`
+## Claude Code で使う (web / cloud 対応)
+
+このリポジトリは **Claude Code on the web** に対応しています。
+
+- 依存・ビルドなし（Markdown + PowerShell スクリプト）。クラウドセッションは `AGENTS.md` と配布 `skills/` を参照。
+- `scripts/*.ps1` は PowerShell（ローカル/pwsh 専用、Linux cloud では非対応）。
+- MCP は本リポジトリではローカル専用。詳細は
+  [`.github/docs/claude-code-web-readiness.md`](https://github.com/thinkyou0714/.github/blob/main/docs/claude-code-web-readiness.md)。
