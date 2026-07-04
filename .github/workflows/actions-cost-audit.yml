@@ -38,7 +38,7 @@ jobs:
       issues: write          # to open / update the audit report Issue
     steps:
       - name: Aggregate per-workflow compute consumption
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         env:
           # Reuses MONITOR_PAT (the same fine-grained PAT that
           # `private-actions-monitor.yml` already uses). No new secret needed.
